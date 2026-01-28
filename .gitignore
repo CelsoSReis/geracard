@@ -1,0 +1,38 @@
+# --- Django ---
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+static/admin/
+staticfiles/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.DS_Store
+
+# --- Ambientes Virtuais (Essencial) ---
+venv/
+env/
+ENV/
+.env
+.venv/
+
+# --- Fotos Geradas Temporariamente ---
+# Se o seu sistema salvar cards em disco antes do download
+*.jpg
+*.jpeg
+*.png
+!static/img/moldura.png  # NÃO ignora a moldura original
+
+# --- IDEs ---
+.vscode/
+.idea/
+*.swp
+
+# --- VPS/Deploy ---
+.python-version
+Procfile
