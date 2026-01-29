@@ -3,9 +3,7 @@
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-media/
-static/admin/
-staticfiles/
+
 
 # --- Python ---
 __pycache__/
@@ -23,9 +21,6 @@ ENV/
 
 # --- Fotos Geradas Temporariamente ---
 # Se o seu sistema salvar cards em disco antes do download
-*.jpg
-*.jpeg
-*.png
 !static/img/moldura.png  # NÃO ignora a moldura original
 
 # --- IDEs ---
