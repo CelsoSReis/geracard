@@ -11,6 +11,8 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            /* Adiciona um espaço no final para o conteúdo não ficar escondido pelo footer fixo */
+            padding-bottom: 70px;
         }
 
         /* Estilização da Hero Section com a imagem de fundo */
@@ -96,6 +98,9 @@
         .btn-gerar-card:active {
             transform: scale(0.95); /* Feedback visual de "apertado" */
         }
+        footer {
+            z-index: 1030; /* Garante que fique acima de tudo */
+        }
     </style>
 </head>
 <body>
@@ -105,13 +110,13 @@
             <a class="btn btn-success rounded-pill px-4 fw-bold" href="https://www.sporttimer.com.br/site/eventosel.php?pst=3553&ev=2182" target="blank">Inscrições</a>
         </div>
     </nav>
-    <header class="hero-section py-5">
+    <header class="hero-section py-3">
         <div class="container py-5">
             <div class="row justify-content-center">
                 <div class="col-lg-10">
                     
                     <div class="header-event text-center mb-4">
-                        <h3 class="mb-2 mt-5">Gerador de Card Oficial #EUVOU</h3>
+                        <h3 class="mb-2 mt-5">1º Encontro de Amigos do Ciclismo de São Miguel do Araguaia</h3>
                     </div>
 
                     <div class="row g-4">
@@ -147,7 +152,7 @@
                                         </div>
                                         <!--<button type="button" class="btn btn-success btn-lg btn-gerar-card" data-bs-toggle="modal" data-bs-target="#confirmarModal">-->
                                         <button type="button" class="btn btn-success btn-lg btn-gerar-card" id="btnValidar">
-                                            <i class="bi bi-download me-2"></i>Download do Card
+                                            <i class="bi bi-download me-2"></i>BAIXAR MEU CARD
                                         </button>
                                     </div>
                                 </form>
@@ -189,11 +194,11 @@
             </div>
         </div>
     </header>
-    <footer class="bg-dark text-white py-2">
+    <footer class="bg-dark text-white py-1 fixed-bottom">
         <div class="container justify-content-center">
             <div class="row align-items-center">
                 <div class="col-md-12 text-center ">
-                 <p class="mb-0"><a href="https://celsosreis.github.io/ReisWeb/" target="_blank"><img src="static/img/logocelso.png" width="200"></a></p>
+                 <p class="mb-0"><a href="https://celsosreis.github.io/ReisWeb/" target="_blank"><img src="static/img/logocelso.png" width="130"></a></p>
                 </div>
             </div>
         </div>
@@ -219,7 +224,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="confirmarModalLabel">Confirmar Geração de Card</h5>
+                <h5 class="modal-title" id="confirmarModalLabel">Confirmar Geração de Card?</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center p-4">
@@ -229,7 +234,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Revisar Dados</button>
-                <button type="submit" form="meuFormularioCard" data-bs-dismiss="modal" class="btn btn-success px-4 fw-bold">Sim, Gerar Cartão!</button>
+                <button type="submit" form="meuFormularioCard" data-bs-dismiss="modal" class="btn btn-success px-4 fw-bold">Baixar</button>
             </div>
         </div>
     </div>
