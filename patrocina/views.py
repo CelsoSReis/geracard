@@ -12,61 +12,78 @@ def patrocinadores(request):
         nome = request.POST.get('nome', '').strip().upper()
         cidade = request.POST.get('cidade', '').strip().upper()
         
-        # Pega a foto (seja via upload normal ou via Base64 do Croppie)
         foto_base64 = request.POST.get('foto_cortada')
         foto_upload = request.FILES.get('foto')
 
         try:
-            # 1. Carregar a Moldura e definir dimensões
+            # 1. Carregar a Moldura
             path_moldura = os.path.join(settings.BASE_DIR, 'static', 'img', 'moldura1.png')
             moldura = Image.open(path_moldura).convert("RGBA")
-            largura_m, altura_m = moldura.size # 1080x1920 (proporcional)
+            largura_m, altura_m = moldura.size
 
-            # 2. Processar a Foto do Usuário
-            if foto_base64: # Se veio do Croppie
+            fundo_foto = Image.new("RGBA", moldura.size, (255, 255, 255, 0))
+            draw_fundo = ImageDraw.Draw(fundo_foto)
+            
+            tamanho_circulo = 1030 
+            pos_x = (largura_m - tamanho_circulo) // 2
+            pos_y = 480 
+
+            # Configuração das Fontes (carregadas antes para usar no fallback se necessário)
+            try:
+                font_path = os.path.join(settings.BASE_DIR, 'static', 'fonts', 'ARIALBD.TTF')
+                font_nome = ImageFont.truetype(font_path, 70)
+                font_cidade = ImageFont.truetype(font_path, 50)
+                # Fonte maior para o nome dentro do círculo
+                font_fallback = ImageFont.truetype(font_path, 100) 
+            except:
+                font_nome = font_cidade = font_fallback = ImageFont.load_default()
+
+            # 2. Processar a Foto ou o Nome no Círculo
+            if foto_base64 and len(foto_base64) > 10:
                 format, imgstr = foto_base64.split(';base64,')
                 foto_data = ContentFile(base64.b64decode(imgstr))
                 foto_perfil = Image.open(foto_data).convert("RGBA")
-            else: # Upload padrão
+                foto_perfil = ImageOps.fit(foto_perfil, (tamanho_circulo, tamanho_circulo), Image.LANCZOS)
+                fundo_foto.paste(foto_perfil, (pos_x, pos_y))
+            
+            elif foto_upload:
                 foto_perfil = Image.open(foto_upload).convert("RGBA")
+                foto_perfil = ImageOps.fit(foto_perfil, (tamanho_circulo, tamanho_circulo), Image.LANCZOS)
+                fundo_foto.paste(foto_perfil, (pos_x, pos_y))
+            
+            else:
+                # CASO SEM FOTO: Círculo Branco + Nome no Centro
+                cor_branca = (255, 255, 255, 255)
+                draw_fundo.ellipse(
+                    [pos_x, pos_y, pos_x + tamanho_circulo, pos_y + tamanho_circulo], 
+                    fill=cor_branca
+                )
+                
+                # Calcular posição central do texto dentro do círculo
+                # Bbox retorna (left, top, right, bottom)
+                bbox = draw_fundo.textbbox((0, 0), nome, font=font_fallback)
+                text_width = bbox[2] - bbox[0]
+                text_height = bbox[3] - bbox[1]
+                
+                # Centro do círculo
+                centro_x = pos_x + (tamanho_circulo // 2) - (text_width // 2)
+                centro_y = pos_y + (tamanho_circulo // 2) - (text_height // 2)
+                
+                # Desenha o nome em cor escura (Azul ou Preto) para dar contraste no branco
+                draw_fundo.text((centro_x, centro_y), nome, font=font_fallback, fill=(30, 70, 230, 255))
 
-            # AJUSTE DA FOTO NO CÍRCULO:
-            # O círculo na sua moldura está aproximadamente no centro superior.
-            # Criamos um fundo transparente do tamanho da moldura e colamos a foto na posição do círculo.
-            fundo_foto = Image.new("RGBA", moldura.size, (255, 255, 255, 0))
-            
-            # Redimensionar a foto para caber no círculo (ex: 750x750px)
-            tamanho_circulo = 1030 
-            foto_perfil = ImageOps.fit(foto_perfil, (tamanho_circulo, tamanho_circulo), Image.LANCZOS)
-            
-            # Coordenadas X e Y para centralizar a foto atrás do círculo da sua moldura
-            pos_foto_x = (largura_m - tamanho_circulo) // 2
-            pos_foto_y = 480 # Ajuste baseado na altura do círculo na moldura.jpg
-            
-            fundo_foto.paste(foto_perfil, (pos_foto_x, pos_foto_y))
-
-            # 3. Sobreposição (Foto atrás, Moldura na frente)
+            # 3. Sobreposição
             final = Image.alpha_composite(fundo_foto, moldura)
             draw = ImageDraw.Draw(final)
 
-            # 4. Configuração das Fontes
-            try:
-                font_path = os.path.join(settings.BASE_DIR, 'static', 'fonts', 'ARIALBD.TTF') # Negrito
-                font_nome = ImageFont.truetype(font_path, 70)
-                font_cidade = ImageFont.truetype(font_path, 50)
-            except:
-                font_nome = font_cidade = ImageFont.load_default()
-
-            # 5. Posicionamento do Texto nas Faixas Vermelhas
-            # Centralizar Nome na primeira faixa vermelha
+            # 4. Posicionamento do Texto nas Faixas Inferiores
             w_n = draw.textlength(nome, font=font_nome)
             draw.text(((largura_m - w_n) / 2, 1720), nome, font=font_nome, fill="white")
 
-            # Centralizar Cidade na segunda faixa vermelha
             w_c = draw.textlength(cidade, font=font_cidade)
             draw.text(((largura_m - w_c) / 2, 1815), cidade, font=font_cidade, fill="white")
 
-            # 6. Salvar e Retornar
+            # 5. Salvar e Retornar
             byte_io = io.BytesIO()
             final.convert("RGB").save(byte_io, 'JPEG', quality=95)
             
